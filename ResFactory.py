@@ -1,13 +1,12 @@
 from tensorflow import keras
 
-
 def ResBlock(x, nf: int = 32):
     copy = x
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Add()([x, copy])
     x = keras.layers.Activation("relu")(x)
     return x
@@ -16,10 +15,10 @@ def ResBlock(x, nf: int = 32):
 def SRResBlock(x, nf: int = 32):
     copy = x
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Add()([x, copy])
     return x
 
@@ -40,11 +39,11 @@ def RB1ResBlock(x, nf: int = 32):
 def RB2ResBlock(x, nf: int = 32):
     copy = x
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
     x = keras.layers.Add()([x, copy])
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     return x
 
@@ -52,10 +51,10 @@ def RB2ResBlock(x, nf: int = 32):
 def RB3ResBlock(x, nf: int = 32):
     copy = x
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Add()([x, copy])
     return x
@@ -65,20 +64,20 @@ def RB4ResBlock(x, nf: int = 32):
     copy = x
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Add()([x, copy])
     return x
 
 
 def RB5ResBlock(x, nf: int = 32):
     copy = x
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
     x = keras.layers.Add()([x, copy])
@@ -88,12 +87,12 @@ def RB5ResBlock(x, nf: int = 32):
 def RB6ResBlock(x, nf: int = 32):
     copy = x
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     x = keras.layers.Conv2D(nf, 3, padding="same")(x)
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Add()([x, copy])
-    x = keras.layers.BatchNormalization(x)
+    x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Activation("relu")(x)
     return x
 
@@ -102,7 +101,7 @@ def FRResBlock(x, nf: int = 32,
                batchNormalization: bool = True,
                depth: int = 3):
     """Feature Reuse Residual Block"""
-    copy1 = x
+    copy1 = keras.layers.Concatenate()([x, x])
     x = keras.layers.Conv2D(nf, 1)(x)
     if batchNormalization:
         x = keras.layers.BatchNormalization()(x)
@@ -125,7 +124,7 @@ def FRPAResBlock(x, nf: int = 32,
                  batchNormalization: bool = True,
                  depth: int = 3):
     """Feature Reuse Pre-activation Residual Block"""
-    copy1 = x
+    copy1 = keras.layers.Concatenate()([x, x])
     if batchNormalization:
         x = keras.layers.BatchNormalization()(x)
     x = keras.layers.Conv2D(nf, 1)(x)
@@ -137,4 +136,4 @@ def FRPAResBlock(x, nf: int = 32,
         x = keras.layers.Conv2D(nf, 3, padding="same")(x)
     x = keras.layers.Concatenate()([x, copy2])
     x = keras.layers.Add()([x, copy1])
-
+    return x
