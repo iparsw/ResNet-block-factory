@@ -140,19 +140,40 @@ def FRPAResBlock(x, nf: int = 32,
     return x
 
 
-def MLResBlock(x, nf: int = 32,
+def MPResBlock(x, nf: int = 32,
                number_of_pathes: int = 2,
                depth: int = 1,
-               kernal_size: int = 3):
+               kernal_size: int = 3,
+               relu_activation: str = "false",
+               multiple_residual: bool = False):
     """Multi Path Residual Block"""
     if nf % number_of_pathes != 0:
         raise ValueError("Number of filters should be divisible by number of pathes")
     copy = x
     pathes = [x] * number_of_pathes
     for i in range(number_of_pathes):
-        for _ in range(depth):
-            pathes[i] = keras.layers.Conv2D(nf / number_of_pathes, kernel_size=kernal_size, padding="same")(pathes[i])
+        """Iterate over the pathes"""
+        for j in range(depth):
+            """Iterate over layers of every layer"""
+
+            """pre activation"""
+            if relu_activation == "pre":
+                pathes[i] = keras.layers.Activation("relu")(pathes[i])
+
+            pathes[i] = keras.layers.Conv2D(nf / number_of_pathes, kernel_size=kernal_size, padding="same", name=f"Conv_path{i}_{j}")(pathes[i])
+
+            """post activation"""
+            if relu_activation == "post":
+                pathes[i] = keras.layers.Activation("relu")(pathes[i])
+
+            """proposed multiple residual"""
+            if multiple_residual:
+                copy1 = keras.layers.AveragePooling2D(pool_size=number_of_pathes, padding="same",
+                                                      data_format="channels_first")(copy)
+                pathes[i] = keras.layers.Add()([pathes[i], copy1])
+
     x = keras.layers.Concatenate()(pathes)
     x = keras.layers.LeakyReLU()(x)
     x = keras.layers.Add()([x, copy])
     return x
+
